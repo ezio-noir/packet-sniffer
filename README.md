@@ -1,8 +1,8 @@
 # Packet sniffer
-This program is coded following the tutorial: [Youtube](https://www.youtube.com/playlist?list=PL6gx4Cwl9DGDdduy0IPDDHYnUx66Vc4ed)
+This program is coded following the tutorial: [Youtube](https://www.youtube.com/playlist?list=PL6gx4Cwl9DGDdduy0IPDDHYnUx66Vc4ed).  
+**PLEASE NOTICE:** This is for learning and practising only. Please do not use it for any other purpose.
 
 ## References  
-
 - Ethernet frame:  
 ![](./assets/ethernet-frame.jpg "Ethernet frame")  
 
