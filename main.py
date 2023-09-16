@@ -1,7 +1,7 @@
 import struct
 import socket
-from colorama import Fore, Back, Style
-import textwrap
+from colorama import Fore
+import utils
 
 
 TAB_1 = '\t - '
@@ -26,45 +26,32 @@ def main():
         raw_data, addr = conn.recvfrom(65536)
         dest_mac, src_mac, eth_proto, data = ethernet_packet(raw_data)
 
-        print_with_color('Ethernet frame: ', Fore.YELLOW)
+        utils.print_with_color('Ethernet frame: ', Fore.YELLOW)
         print(TAB_1 + 'Destination: {}; Source: {}; Protocol: {}'.format(dest_mac, src_mac, eth_proto))
 
+        # Verifies if the packet is a IPv4 packet
         if eth_proto == ETHER_TYPE['IPv4']:
             version, header_length, ttl, proto, src, target, data = ipv4_packet(data)
-            print_with_color(TAB_1 + 'IPv4 packet:', Fore.RED)
+            utils.print_with_color(TAB_1 + 'IPv4 packet:', Fore.RED)
             print(TAB_2 + 'Version: {}; Header_length: {}; Time to live: {}'.format(version, header_length, ttl))
             print(TAB_2 + 'Protocol: {}; Source: {}; Target: {}'.format(proto, src, target))
 
+            # Verifies if the IP protocol is ICMP
             if proto == INTERNET_PROTOCOL['ICMP']:
                 icmp_type, code, checksum, data = icmp_packet(data)
-                print_with_color(TAB_2 + 'ICMP packet:', Fore.GREEN)
+                utils.print_with_color(TAB_2 + 'ICMP packet:', Fore.GREEN)
                 print(TAB_3 + 'Type: {}; Code: {}; Checksum: {}'.format(icmp_type, code, checksum))
-                print_with_color(TAB_3 + 'Data:', Fore.CYAN)
-                print_raw(data, indent='\t\t\t\t')
+                utils.print_with_color(TAB_3 + 'Data:', Fore.CYAN)
+                utils.print_raw(data, indent='\t\t\t\t')
 
+            # Verifies if the IP protocol is TCP
             elif proto == INTERNET_PROTOCOL['TCP']:
                 src_port, dest_port, sequence, acknowledgement, flag_urg, flag_ack, flag_psh, flag_rst, flag_syn, flag_fin, data = tcp_segment(data)
-                print_with_color(TAB_2 + 'TCP segment:', Fore.GREEN)
+                utils.print_with_color(TAB_2 + 'TCP segment:', Fore.GREEN)
                 print(TAB_2 + 'Source port: {}; Destination port: {}; Sequence: {}; Acknowledgement: {}'.format(src_port, dest_port, sequence, acknowledgement))
                 print(TAB_3 + 'Flags: URG={}, ACK={}, PSH={}, RST={}, SYN={}, FIN={}'.format(flag_urg, flag_ack, flag_psh, flag_rst, flag_syn, flag_fin))
-                print_with_color(TAB_3 + 'Data:', Fore.CYAN)
-                print_raw(data, indent='\t\t\t\t')
-
-
-# Prints text with color
-def print_with_color(text, color=None):
-    if color:
-        print(color + text + Style.RESET_ALL)
-    else:
-        print(text)
-
-
-# Prints raw data in hexadecimal
-def print_raw(data, width=80, indent='', color=None):
-    text = ' '.join([f'{byte:02X}' for byte in data])
-    lines = textwrap.wrap(text, width=width, initial_indent=indent, subsequent_indent=indent)
-    for line in lines:
-        print_with_color(line, color=color)
+                utils.print_with_color(TAB_3 + 'Data:', Fore.CYAN)
+                utils.print_raw(data, indent='\t\t\t\t')
 
 
 # Unpacks an Ethernet frame
@@ -116,7 +103,6 @@ def tcp_segment(data):
     flag_syn = (offset_reserved_flag & 2) >> 1
     flag_fin = offset_reserved_flag & 1
     return src_port, dest_port, sequence, acknowledgement, flag_urg, flag_ack, flag_psh, flag_rst, flag_syn, flag_fin, data[offset:]
-
 
 
 if __name__ == '__main__':
